@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chess Coach Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --bg-soft: #101b31;
+      --panel: #ffffff;
+      --text: #152033;
+      --muted: #64748b;
+      --line: #e5eaf3;
+      --brand: #2f6fed;
+      --brand-dark: #2457bc;
+      --good-bg: #eaf8ef;
+      --good-line: #badfc5;
+    }
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 28px;
+      background:
+        radial-gradient(1200px 400px at 20% -10%, #1c2f52 0%, transparent 60%),
+        radial-gradient(900px 300px at 100% 0%, #1a4e8f 0%, transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+      color: #e6edf9;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .hero { margin-bottom: 18px; padding: 12px 0; }
+    h1 { margin: 0 0 6px; font-size: 30px; }
+    h2 { margin: 0 0 10px; font-size: 20px; }
+    .muted { color: #b5c3dd; margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 14px; margin: 20px 0; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      background: var(--panel);
+      box-shadow: 0 8px 24px rgba(8, 18, 40, 0.3);
+      color: var(--text);
+    }
+    .card .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .value { font-size: 30px; font-weight: 700; margin-top: 6px; }
+    .section {
+      margin: 16px 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      box-shadow: 0 8px 24px rgba(8, 18, 40, 0.26);
+      padding: 16px;
+      color: var(--text);
+    }
+    .section .muted { color: var(--muted); }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .section-header h2 { margin: 0; }
+    .btn-danger { background: #b91c1c; color: #fff; }
+    .btn-danger:hover { background: #991b1b; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .board-btn { background: none; border: 1px solid #ccd6ea; color: var(--muted); padding: 3px 8px; font-size: 12px; border-radius: 6px; cursor: pointer; }
+    .board-btn:hover { background: #f0f4ff; color: var(--brand); border-color: var(--brand); }
+    dialog { border: none; border-radius: 14px; padding: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.35); max-width: 440px; }
+    dialog::backdrop { background: rgba(0,0,0,0.5); }
+    .dialog-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+    .dialog-title { font-weight: 600; font-size: 15px; color: var(--text); max-width: 340px; line-height: 1.4; }
+    .dialog-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); padding: 0; line-height: 1; }
+    .dialog-close:hover { color: var(--text); }
+    .form-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    input, button {
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid #ccd6ea;
+      font-size: 14px;
+    }
+    input[type="file"] { background: #fff; }
+    button {
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      background: var(--brand);
+      font-weight: 600;
+    }
+    button:hover { background: var(--brand-dark); }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--line); padding: 9px; text-align: left; }
+    th { background: #f2f6fd; }
+    .msg {
+      background: var(--good-bg);
+      border: 1px solid var(--good-line);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+      color: #195a2f;
+    }
+    .pipeline-card {
+      margin-top: 12px;
+      border: 1px solid #d7e2f7;
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fbff;
+      color: #21324f;
+    }
+    .progress-outer {
+      margin-top: 8px;
+      width: 100%;
+      height: 14px;
+      background: #dde6f7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2f6fed, #39a0ff);
+      transition: width 0.25s ease;
+    }
+    .pipeline-meta { margin-top: 6px; font-size: 13px; color: #52658d; }
+    .pipeline-row { margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: #42577e; }
+    .hint { font-size: 12px; color: #6c7ea2; }
+    .btn-secondary {
+      background: #1f3558;
+      color: #f0f4ff;
+    }
+    .btn-secondary:hover { background: #192c4a; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+  <div class="hero">
+    <h1>Chess Coach Dashboard</h1>
+    <p class="muted">Import all your games from Chess.com or upload PGNs, then run the full coaching pipeline in one click.</p>
+  </div>
+
+  {% if message %}
+  <div class="msg">{{ message }}</div>
+  {% endif %}
+
+  <div class="grid">
+    <div class="card"><div class="label">Games</div><div class="value">{{ stats.games }}</div></div>
+    <div class="card"><div class="label">Analyzed Moves</div><div class="value">{{ stats.analyzed_moves }}</div></div>
+    <div class="card"><div class="label">Mistake Events</div><div class="value">{{ stats.mistake_events }}</div></div>
+  </div>
+
+  <div class="section">
+    <h2>1) Add Your Games</h2>
+    <div class="form-grid">
+      <div>
+        <p class="muted">Fastest path: import all monthly archives from your Chess.com username.</p>
+        <form action="/dashboard/import-chesscom" method="post">
+          <label>Chess.com Username <input type="text" name="username" placeholder="yourusername" required></label>
+          <button type="submit">Import From Chess.com</button>
+        </form>
+      </div>
+      <div>
+        <p class="muted">Or upload any PGN file manually.</p>
+        <form action="/dashboard/upload" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" accept=".pgn" required>
+          <button type="submit">Upload PGN</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2) Analyze + Tag All Games</h2>
+    <form id="pipeline-form" action="/dashboard/run-all/start" method="post">
+      <label>Depth <input type="number" name="depth" value="12" min="6" max="24"></label>
+      <label>Game Limit <input type="number" name="limit" value="5000" min="1" max="20000"></label>
+      <label><input type="checkbox" name="only_new" value="true"> Only new/unprocessed games</label>
+      <button type="submit">Run Full Pipeline</button>
+      <button id="cancel-btn" class="btn-secondary" type="button" style="display:none;">Cancel Run</button>
+      <button id="refresh-btn" class="btn-secondary" type="button" onclick="window.location.reload()">Refresh Results</button>
+    </form>
+    <div class="hint">Tip: enable "Only new/unprocessed games" to skip games already analyzed and tagged.</div>
+    <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--line);">
+      <span class="hint">Already analyzed? Re-tag existing games with improved pattern detection (fast — no Stockfish needed):</span>
+      <button id="retag-btn" class="btn-secondary" type="button" style="margin-left:8px;">Re-tag Only</button>
+    </div>
+    <div id="pipeline-card" class="pipeline-card" style="display:none;">
+      <strong id="pipeline-title">Pipeline status</strong>
+      <div class="progress-outer"><div id="pipeline-progress" class="progress-inner"></div></div>
+      <div id="pipeline-meta" class="pipeline-meta">Queued...</div>
+      <div id="pipeline-extra" class="pipeline-row"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Top Patterns ({{ total_events }} events)</h2>
+      <form action="/dashboard/clear-mistakes" method="post" onsubmit="return confirm('Clear all mistake data? You can re-tag without re-running Stockfish.')">
+        <button type="submit" class="btn-danger btn-sm">Clear All Mistake Data</button>
+      </form>
+    </div>
+    <table>
+      <thead><tr><th>Category</th><th>Phase</th><th>Occurrences</th><th>Avg Eval Loss</th></tr></thead>
+      <tbody>
+      {% for p in top_patterns %}
+        <tr>
+          <td>{{ p.category.replace('_', ' ').title() }}</td>
+          <td>{{ p.phase }}</td>
+          <td>{{ p.occurrences }}</td>
+          <td>{{ "%.1f"|format(p.avg_eval_loss_cp) }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4">No pattern data yet. Upload and run analysis first.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Training Recommendations</h2>
+    <table>
+      <thead><tr><th>Pattern</th><th>Priority</th><th>Suggestion</th></tr></thead>
+      <tbody>
+      {% for r in recommendations %}
+        <tr>
+          <td>{{ r.category.replace('_', ' ').title() }} ({{ r.phase }})</td>
+          <td>{{ "%.1f"|format(r.priority_score) }}</td>
+          <td>{{ r.recommendation }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3">No recommendations yet. Run the full pipeline first.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Recent Mistakes</h2>
+    <table>
+      <thead><tr><th>What went wrong</th><th>Type</th><th>Phase</th><th>Loss</th><th>Game</th><th></th></tr></thead>
+      <tbody>
+      {% for me, g in recent_mistakes %}
+        <tr>
+          <td style="max-width:380px; line-height:1.5;">{{ me.description or me.category.replace('_', ' ').title() }}</td>
+          <td style="white-space:nowrap;">{{ me.category.replace('_', ' ').title() }}</td>
+          <td>{{ me.phase }}</td>
+          <td style="white-space:nowrap;">{{ "%.0f"|format(me.eval_loss_cp) }}cp</td>
+          <td style="white-space:nowrap; color:var(--muted); font-size:13px;">{{ g.white or "?" }} vs {{ g.black or "?" }}</td>
+          <td>
+            {% if me.fen_after %}
+            <button class="board-btn" onclick="showBoard({{ me.id }}, this)">View board</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6">No mistakes tagged yet. Run the pipeline or click Re-tag Only.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <dialog id="board-dialog">
+    <div class="dialog-header">
+      <div class="dialog-title" id="board-dialog-title"></div>
+      <button class="dialog-close" onclick="document.getElementById('board-dialog').close()">&#x2715;</button>
+    </div>
+    <div id="board-dialog-img" style="line-height:0;"></div>
+  </dialog>
+
+  <div class="section">
+    <h2>Recent Games</h2>
+    <table>
+      <thead><tr><th>ID</th><th>White</th><th>Black</th><th>Result</th><th>ECO</th><th>Source</th></tr></thead>
+      <tbody>
+      {% for g in recent_games %}
+        <tr>
+          <td>{{ g.id }}</td>
+          <td>{{ g.white or "-" }}</td>
+          <td>{{ g.black or "-" }}</td>
+          <td>{{ g.result or "-" }}</td>
+          <td>{{ g.eco or "-" }}</td>
+          <td>{{ g.source_file }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6">No games uploaded yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  </div>
+  <script>
+    let activeJobId = null;
+    let pollTimer = null;
+
+    function fmtDuration(seconds) {
+      if (seconds === null || seconds === undefined) return "n/a";
+      const s = Math.max(0, Math.floor(seconds));
+      const m = Math.floor(s / 60);
+      const rem = s % 60;
+      return `${m}m ${rem}s`;
+    }
+
+    function setPipelineUI(visible, percent, title, meta, extra = "") {
+      const card = document.getElementById("pipeline-card");
+      const bar = document.getElementById("pipeline-progress");
+      const t = document.getElementById("pipeline-title");
+      const m = document.getElementById("pipeline-meta");
+      const x = document.getElementById("pipeline-extra");
+      card.style.display = visible ? "block" : "none";
+      bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+      t.textContent = title;
+      m.textContent = meta;
+      x.textContent = extra;
+    }
+
+    async function pollJob(jobId) {
+      try {
+        const res = await fetch(`/dashboard/jobs/${jobId}`);
+        if (!res.ok) throw new Error("Unable to fetch job status.");
+        const data = await res.json();
+        const total = data.total_games || 0;
+        const done = data.processed_games || 0;
+        const skipped = data.skipped_games || 0;
+        const percent = total > 0 ? (done / total) * 100 : (data.status === "completed" ? 100 : 5);
+        const extra = `Elapsed: ${fmtDuration(data.elapsed_seconds)} | ETA: ${fmtDuration(data.eta_seconds)} | Skipped: ${skipped}`;
+        setPipelineUI(true, percent, `Pipeline: ${data.status}`, data.message || "", extra);
+        document.getElementById("cancel-btn").style.display = data.status === "running" || data.status === "queued" ? "inline-block" : "none";
+        if (data.status === "completed" || data.status === "failed" || data.status === "cancelled") {
+          clearInterval(pollTimer);
+          pollTimer = null;
+          if (data.status === "completed") {
+            setTimeout(() => window.location.reload(), 1200);
+          }
+        }
+      } catch (err) {
+        setPipelineUI(true, 0, "Pipeline: error", String(err));
+      }
+    }
+
+    document.getElementById("pipeline-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+      setPipelineUI(true, 2, "Pipeline: starting", "Submitting job...", "");
+      const res = await fetch(form.action, { method: "POST", body: formData });
+      if (!res.ok) {
+        setPipelineUI(true, 0, "Pipeline: failed", "Could not start pipeline job.", "");
+        return;
+      }
+      const payload = await res.json();
+      activeJobId = payload.job_id;
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(() => pollJob(activeJobId), 1200);
+      pollJob(activeJobId);
+    });
+
+    document.getElementById("cancel-btn").addEventListener("click", async () => {
+      if (!activeJobId) return;
+      await fetch(`/dashboard/jobs/${activeJobId}/cancel`, { method: "POST" });
+      setPipelineUI(true, 0, "Pipeline: cancelling", "Cancellation requested...", "");
+    });
+
+    async function showBoard(mistakeId, btn) {
+      const dialog = document.getElementById("board-dialog");
+      const img = document.getElementById("board-dialog-img");
+      const title = document.getElementById("board-dialog-title");
+      const row = btn.closest("tr");
+      title.textContent = row.querySelector("td").textContent.trim();
+      img.innerHTML = "<p style='color:#666;padding:20px 0;'>Loading board...</p>";
+      dialog.showModal();
+      const res = await fetch(`/mistakes/${mistakeId}/board`);
+      if (!res.ok) { img.innerHTML = "<p style='color:#b00;'>Could not load board.</p>"; return; }
+      const svg = await res.text();
+      img.innerHTML = svg;
+    }
+
+    document.getElementById("retag-btn").addEventListener("click", async () => {
+      setPipelineUI(true, 2, "Re-tag: starting", "Submitting retag job...", "");
+      const res = await fetch("/dashboard/retag-all/start", { method: "POST" });
+      if (!res.ok) {
+        setPipelineUI(true, 0, "Re-tag: failed", "Could not start retag job.", "");
+        return;
+      }
+      const payload = await res.json();
+      activeJobId = payload.job_id;
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(() => pollJob(activeJobId), 1200);
+      pollJob(activeJobId);
+    });
+  </script>
+</body>
+</html>

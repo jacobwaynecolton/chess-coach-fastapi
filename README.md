@@ -37,15 +37,13 @@ Python + FastAPI backend for ingesting your chess games, analyzing them with Sto
 ## Quick start
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+./start.sh
 ```
 
 Then open:
 
-- `http://127.0.0.1:8000/docs`
+- `http://127.0.0.1:8000/` (recommended dashboard)
+- `http://127.0.0.1:8000/docs` (developer API docs)
 - `POST /games/upload`
 - `GET /games`
 - `POST /analysis/run/{game_id}`

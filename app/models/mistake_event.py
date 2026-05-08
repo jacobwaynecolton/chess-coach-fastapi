@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Text
 
 from app.core.database import Base
 
@@ -17,3 +17,5 @@ class MistakeEvent(Base):
     category = Column(String, nullable=False)
     severity = Column(String, nullable=False)
     eval_loss_cp = Column(Float, nullable=True)
+    description = Column(Text, nullable=True)
+    fen_after = Column(Text, nullable=True)

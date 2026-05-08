@@ -3,6 +3,35 @@ from sqlalchemy.orm import Session
 
 from app.models.mistake_event import MistakeEvent
 
+_CATEGORY_ADVICE: dict[str, str] = {
+    "missed_checkmate": (
+        "You missed forced checkmates. Drill mating patterns (back-rank, smothered, "
+        "two-rook roller) and always scan for forcing sequences before any other plan."
+    ),
+    "missed_winning_check": (
+        "Practice tactical alertness by scanning all checks before each move. "
+        "Checks often unlock material gains or decisive positional advantages."
+    ),
+    "missed_free_material": (
+        "You regularly miss undefended opponent pieces. Before every move, apply "
+        "the CCT rule: scan for Checks, Captures, and Threats — for both sides."
+    ),
+    "hanging_piece": (
+        "You frequently leave pieces undefended after your moves. After choosing a "
+        "move, pause and ask 'does this leave anything hanging?' before playing it."
+    ),
+    "pawn_overextension": (
+        "Avoid pushing kingside pawns past the 5th rank when your king is castled "
+        "there — over-advanced pawns become targets and strip your king's cover. "
+        "Study Silman's pawn structure chapters or Nimzowitsch on overextension."
+    ),
+    "king_safety": (
+        "Do not push pawns directly in front of your castled king without a concrete "
+        "reason. Each pawn move near your king weakens your defensive cover and can "
+        "open lines for the opponent's attack."
+    ),
+}
+
 
 def build_recommendations(db: Session, top_n: int = 5) -> list[dict]:
     rows = (
@@ -20,7 +49,6 @@ def build_recommendations(db: Session, top_n: int = 5) -> list[dict]:
     for row in rows:
         occurrences = int(row.occurrences)
         avg_loss = float(row.avg_eval_loss_cp or 0.0)
-        # Prioritize frequent and high-impact patterns.
         priority = occurrences * avg_loss
         ranked.append(
             {
@@ -38,6 +66,8 @@ def build_recommendations(db: Session, top_n: int = 5) -> list[dict]:
 
 
 def _recommendation_text(category: str, phase: str) -> str:
+    if category in _CATEGORY_ADVICE:
+        return _CATEGORY_ADVICE[category]
     if phase == "opening":
         return (
             "Review your first 10-15 moves and build a simple repertoire tree "

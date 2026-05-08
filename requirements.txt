@@ -4,3 +4,4 @@ python-chess
 sqlalchemy
 pydantic
 python-multipart
+jinja2
