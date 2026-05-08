@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 
+from app.api.analysis import router as analysis_router
 from app.api.games import router as games_router
 from app.core.config import DATA_DIR, UPLOADS_DIR
 from app.core.database import Base, engine
+from app.models.analysis import MoveAnalysis  # noqa: F401
+from app.models.game import Game  # noqa: F401
 
 app = FastAPI(title="Chess Coach AI")
 
@@ -21,3 +24,4 @@ def healthcheck() -> dict[str, str]:
 
 
 app.include_router(games_router)
+app.include_router(analysis_router)
