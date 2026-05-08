@@ -1,4 +1,6 @@
 import chess.engine
+import shutil
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,12 @@ from app.schemas.analysis import AnalysisBatchResponse, AnalysisRunResponse
 from app.services.stockfish_analysis import analyze_game
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
+
+
+@router.get("/engine-status")
+def engine_status() -> dict[str, str | bool]:
+    exists = Path(STOCKFISH_PATH).exists() or shutil.which(STOCKFISH_PATH) is not None
+    return {"stockfish_path": STOCKFISH_PATH, "configured": exists}
 
 
 @router.post("/run/{game_id}", response_model=AnalysisRunResponse)
