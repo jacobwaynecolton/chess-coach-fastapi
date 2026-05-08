@@ -3,8 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models.game import Game
-from app.schemas.patterns import PatternRunResponse, PatternSummaryResponse
+from app.schemas.patterns import (
+    PatternRunResponse,
+    PatternSummaryResponse,
+    RecommendationResponse,
+)
 from app.services.mistake_tagger import summarize_patterns, tag_game_mistakes
+from app.services.recommendations import build_recommendations
 
 router = APIRouter(prefix="/patterns", tags=["patterns"])
 
@@ -26,3 +31,12 @@ def get_pattern_summary(
 ):
     total_events, top_patterns = summarize_patterns(db=db, top_n=top_n)
     return PatternSummaryResponse(total_events=total_events, top_patterns=top_patterns)
+
+
+@router.get("/recommendations", response_model=RecommendationResponse)
+def get_recommendations(
+    top_n: int = Query(default=5, ge=1, le=10),
+    db: Session = Depends(get_db),
+):
+    items = build_recommendations(db=db, top_n=top_n)
+    return RecommendationResponse(items=items)

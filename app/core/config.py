@@ -10,6 +10,7 @@ DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 _stockfish_candidates = [
     os.getenv("STOCKFISH_PATH"),
+    str(BASE_DIR / "bin" / "stockfish"),
     shutil.which("stockfish"),
     "/usr/bin/stockfish",
     "/usr/local/bin/stockfish",

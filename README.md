@@ -28,6 +28,12 @@ Python + FastAPI backend for ingesting your chess games, analyzing them with Sto
 - Track tags by game, ply, side, and game phase.
 - Aggregate recurring patterns with frequency + average eval loss.
 
+## Phase 4 scope
+
+- Rank recurring issues with a weighted priority score.
+- Return practical training recommendations per pattern.
+- Expose recommendation API for your training plan UI.
+
 ## Quick start
 
 ```bash
@@ -47,6 +53,7 @@ Then open:
 - `GET /analysis/engine-status`
 - `POST /patterns/run/{game_id}`
 - `GET /patterns/summary`
+- `GET /patterns/recommendations`
 
 ## Stockfish setup
 
@@ -59,6 +66,7 @@ export STOCKFISH_PATH=/absolute/path/to/stockfish
 The app now auto-detects Stockfish from:
 
 - `STOCKFISH_PATH` env var (highest priority)
+- `./bin/stockfish` inside the project
 - `stockfish` on PATH
 - `/usr/bin/stockfish`
 - `/usr/local/bin/stockfish`
